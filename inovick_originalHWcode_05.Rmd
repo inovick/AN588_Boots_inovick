@@ -40,22 +40,96 @@ logm$coefficients
 ```
 
 #Challenge 2: Then, use bootstrapping to sample from your data 1000 times with replacement, each time fitting the same model and calculating the same coefficients. This generates a sampling distribution for each β coefficient.
-```{r}
 
+##First create the sample dataset:
+```{r}
+#code from https://towardsdatascience.com/bootstrap-regression-in-r-98bfe4ff5007
+
+set.seed(2021) #A little confused about the set.seed function
+n <- 1000
+x <- rnorm(n)
+y <- x + rnorm(n)
+population.data <- as.data.frame(cbind(log(homerange), log(bodymassf)))
+
+population.data <- as.data.frame(cbind(log(homerange), log(bodymassf)))
+population.model <- lm(y ~ x, population.data)
+summary(population.model)
+
+sample.data <- population.data[sample(nrow(population.data), 20, replace = TRUE),]
+sample.data
+
+sample.model <- lm(y ~ x, data = sample.data)
+summary(sample.model)
+```
+##Then use the bootstrap approach
+```{r}
+# Containers for the coefficients
+sample_coef_intercept <- NULL
+sample_coef_x1 <- NULL
+
+for (i in 1:1000) {
+  #Creating a resampled dataset from the sample data
+  sample_d = sample.data[sample(1:nrow(sample.data), nrow(sample.data), replace = TRUE), ]
+  
+  #Running the regression on these data
+  model_bootstrap <- lm(y ~ x, data = sample_d)
+  
+  #Saving the coefficients
+  sample_coef_intercept <-
+    c(sample_coef_intercept, model_bootstrap$coefficients[1])
+  
+  sample_coef_x1 <-
+    c(sample_coef_x1, model_bootstrap$coefficients[2])
+}
+
+coefs <- rbind(sample_coef_intercept, sample_coef_x1)
 ```
 
 ##Estimate the standard error for each of your β coefficients as the standard deviation of the sampling distribution from your bootstrap and determine the 95% CI for each of your β coefficients based on the appropriate quantiles from your sampling distribution.
+
+#Combining these results in a table to have a clearer picture:
+#Tried to add standard error but struggling
 ```{r}
+means.boot = c(mean(sample_coef_intercept), mean(sample_coef_x1))
+knitr::kable(round(
+  cbind(
+    population = coef(summary(population.model))[, 1],
+    sample = coef(summary(sample.model))[, 1],
+    bootstrap = means.boot),4), 
+  "simple", caption = "Coefficients in different models")
 
+confint(population.model)
+pop.se <- function(population.data) sqrt(var(population.data)/length(population.data))
+confint(sample.model)
+samp.se <- function(sample.data) sqrt(var(sample.data)/length(sample.data))
+a <-
+  cbind(
+    quantile(sample_coef_intercept, prob = 0.050),
+    quantile(sample_coef_intercept, prob = 0.950))
+b <-
+  cbind(quantile(sample_coef_x1, prob = 0.050),
+        quantile(sample_coef_x1, prob = 0.950))
 
+c <-
+  round(cbind(
+    population = confint(population.model),
+    sample = confint(sample.model),
+    boot = rbind(a, b)), 4)
+colnames(c) <- c("5.0 %", "95.0 %",
+                 "5.0 %", "95.0 %",
+                 "5.0 %", "95.0 %")
+knitr::kable(rbind(
+  c('population',
+    'population',
+    'sample',
+    'sample',
+    'bootstrap',
+    'bootstrap'),c))
 ```
+
 
 ##How does the former compare to the SE estimated from your entire dataset using the formula for standard error implemented in lm()?
-```{r}
-
-```
+#Standard error should be higher for the sample models, need help calculating standard error.
 
 ##How does the latter compare to the 95% CI estimated from your entire dataset?
-```{r}
-
-```
+#It's similar but a little bit higher. Not a huge difference though.
