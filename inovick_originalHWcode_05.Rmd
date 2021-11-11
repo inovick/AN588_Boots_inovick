@@ -1,0 +1,61 @@
+---
+title: "inovick_OriginalHomeworkCode_05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#First, load the packages needed:
+```{r}
+library(curl)
+library(ggplot2)
+library(gridExtra)
+library(lmodel2)
+```
+#Then, load the data using the curl command:
+```{r}
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN588_Fall21/KamilarAndCooperData.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+head(d)
+```
+
+#Challenge 1: Using the “KamilarAndCooperData.csv” dataset, run a linear regression looking at log(HomeRange_km2) in relation to log(Body_mass_female_mean) and report your β coeffiecients (slope and intercept).
+```{r}
+#Assigning variables:
+homerange <- d$HomeRange_km2
+bodymassf <- d$Body_mass_female_mean
+
+#Using the lm function:
+m <- lm(homerange ~ bodymassf)
+m
+
+#Creating a log linear regression:
+logm<- lm(log(homerange) ~ log(bodymassf))
+logm
+
+logm$coefficients
+#Slope= 1.036, intercept= -9.441
+```
+
+#Challenge 2: Then, use bootstrapping to sample from your data 1000 times with replacement, each time fitting the same model and calculating the same coefficients. This generates a sampling distribution for each β coefficient.
+```{r}
+
+```
+
+##Estimate the standard error for each of your β coefficients as the standard deviation of the sampling distribution from your bootstrap and determine the 95% CI for each of your β coefficients based on the appropriate quantiles from your sampling distribution.
+```{r}
+
+
+```
+
+##How does the former compare to the SE estimated from your entire dataset using the formula for standard error implemented in lm()?
+```{r}
+
+```
+
+##How does the latter compare to the 95% CI estimated from your entire dataset?
+```{r}
+
+```
