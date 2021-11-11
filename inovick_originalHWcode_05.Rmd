@@ -129,7 +129,7 @@ knitr::kable(rbind(
 
 
 ##How does the former compare to the SE estimated from your entire dataset using the formula for standard error implemented in lm()?
-#Standard error should be higher for the sample models, need help calculating standard error.
+#Standard error should be higher for the sample models (I think), need help calculating standard error in this context because whatever I did didn't work.
 
 ##How does the latter compare to the 95% CI estimated from your entire dataset?
 #It's similar but a little bit higher. Not a huge difference though.
